@@ -29,11 +29,11 @@ app.use((req, res, next) => {
 // ROUTES
 const booksRoute = require('./routes/books');
 const categoriesRoute = require('./routes/categories');
+app.use('/books', booksRoute);
+app.use('/categories', categoriesRoute);
 app.use('/', (req, res, next) => {
     res.send('HELLO BOOKS');
 });
-app.use('/books', booksRoute);
-app.use('/categories', categoriesRoute);
 
 // ERRORS
 app.use((req, res, next) => {
