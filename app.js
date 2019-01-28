@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 // MONGOOSE
 mongoose.connect(
-    'mongodb://buyubaya:'+encodeURIComponent('By#199215609715417')+'@nodejs-api-shard-00-00-crajj.mongodb.net:27017,nodejs-api-shard-00-01-crajj.mongodb.net:27017,nodejs-api-shard-00-02-crajj.mongodb.net:27017/test?ssl=true&replicaSet=nodejs-api-shard-0&authSource=admin&retryWrites=true', 
+    'mongodb://buyubaya:'+encodeURIComponent(process.env.MONGO_ATLAS_PASSWORD)+'@nodejs-api-shard-00-00-crajj.mongodb.net:27017,nodejs-api-shard-00-01-crajj.mongodb.net:27017,nodejs-api-shard-00-02-crajj.mongodb.net:27017/test?ssl=true&replicaSet=nodejs-api-shard-0&authSource=admin&retryWrites=true', 
     {
         useNewUrlParser: true
     }
