@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 // MONGOOSE
 mongoose.connect(
-    'mongodb://buyubaya:'+encodeURIComponent('By#199215609715417')+'@nodejs-api-shard-00-00-crajj.mongodb.net:27017,nodejs-api-shard-00-01-crajj.mongodb.net:27017,nodejs-api-shard-00-02-crajj.mongodb.net:27017/test?ssl=true&replicaSet=nodejs-api-shard-0&authSource=admin&retryWrites=true', 
+    'mongodb://buyubaya:'+encodeURIComponent('P@ssword123')+'@nodejs-book-api-shard-00-00-qh0ln.mongodb.net:27017,nodejs-book-api-shard-00-01-qh0ln.mongodb.net:27017,nodejs-book-api-shard-00-02-qh0ln.mongodb.net:27017/test?ssl=true&replicaSet=nodejs-book-api-shard-0&authSource=admin&retryWrites=true', 
     {
         useNewUrlParser: true
     }
