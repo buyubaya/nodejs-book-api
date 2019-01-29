@@ -47,6 +47,8 @@ router.get('/:id', (req, res, next) => {
 router.get('/', (req, res, next) => {
     Book.find()
     .populate('category', '_id name')
+    .populate('author', '_id name')
+    .populate('brand', '_id name')
     .exec()
     .then(doc => {
         res.status(200).json(doc);
@@ -60,7 +62,6 @@ router.get('/', (req, res, next) => {
 
 // POST
 router.post('/', upload.single('img'), (req, res, next) => {
-    console.log('HELLO FILE', req.file);
     let newItem = {};
     if(req.body.name){
         newItem['name'] = req.body.name;
