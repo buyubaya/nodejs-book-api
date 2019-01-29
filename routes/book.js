@@ -75,17 +75,14 @@ router.post('/', upload.single('img'), (req, res, next) => {
     if(req.body.category){
         newItem['category'] = req.body.category;
     }
-    if(req.body.category){
+    if(req.body.author){
         newItem['author'] = req.body.author;
     }
-    if(req.body.category){
+    if(req.body.brand){
         newItem['brand'] = req.body.brand;
     }
-    if(req.body.category){
+    if(req.body.description){
         newItem['description'] = req.body.description;
-    }
-    if(req.body.createdAt){
-        newItem['createdAt'] = req.body.createdAt;
     }
 
     newItem = new Book({_id: new mongoose.Types.ObjectId(), ...newItem});
@@ -101,11 +98,16 @@ router.post('/', upload.single('img'), (req, res, next) => {
 });
 
 // UPDATE
-router.put('/:id', (req, res, next) => {
+router.put('/:id', upload.single('img'), (req, res, next) => {
     const id = req.params.id;
     let newItem = {};
     for(let key in req.body){
-        newItem[key] = req.body[key];
+        if(req.body[key] && key !== 'img'){
+            newItem[key] = req.body[key];
+        }
+    }
+    if(req.file && req.file.fieldname === 'img'){
+        newItem['img'] = req.file.filename;
     }
     
     Book.findByIdAndUpdate({ _id: id }, { $set: newItem })
