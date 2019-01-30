@@ -72,11 +72,8 @@ router.post('/', upload.single('img'), (req, res, next) => {
     if (req.file && req.file.fieldname === 'img') {
         newItem['img'] = req.file.filename;
 
-        uploadImageToStorage(req.file).then(success => {
-            console.log('IMG URL', success);
-            res.status(200).send({
-                status: 'success'
-            });
+        uploadImageToStorage(req.file).then(imgUrl => {
+            newItem['img'] = imgUrl;
         }).catch(error => {
             res.status(500).send({
                 message: error
