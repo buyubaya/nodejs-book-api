@@ -64,15 +64,13 @@ router.get('/', (req, res, next) => {
 });
 
 // POST
-router.post('/', upload.single('img'), (req, res, next) => {
+router.post('/', upload.single('img'), async (req, res, next) => {
     let newItem = {};
     if (req.body.name) {
         newItem['name'] = req.body.name;
     }
     if (req.file && req.file.fieldname === 'img') {
-        newItem['img'] = req.file.filename;
-
-        uploadImageToStorage(req.file).then(imgUrl => {
+        await uploadImageToStorage(req.file).then(imgUrl => {
             newItem['img'] = imgUrl;
         }).catch(error => {
             res.status(500).send({
