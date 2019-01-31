@@ -9,25 +9,26 @@ const bucket = storage.bucket(CLOUD_BUCKET);
 const uuid = require("uuid");
 
 
-const uploadImageToStorage = (file) => {
+exports.uploadFile = function(file){
     return new Promise((resolve, reject) => {
         if (!file) {
             reject('No image file');
         }
 
+        // ADD NEW IMAGE
         const downloadToken = uuid();
         bucket.upload(
-            file.path, 
-            { 
+            file.path,
+            {
                 destination: file.filename,
                 metadata: {
                     contentType: file.mimetype,
                     metadata: {
                         firebaseStorageDownloadTokens: downloadToken
                     }
-                } 
+                }
             },
-            function(err, data) {
+            function (err, data) {
                 if (err) {
                     reject(err);
                 }
@@ -38,18 +39,14 @@ const uploadImageToStorage = (file) => {
                 }
             }
         );
-
-        // bucket.file(file.path).getSignedUrl({
-        //     action: 'read',
-        //     expires: '03-09-2491'
-        // })
-        // .then(signedUrls => {
-        //     // signedUrls[0] contains the file's public URL
-        //     resolve(signedUrls)
-        // })
-        // .catch(err => reject(err));
     });
 };
 
 
-module.exports = uploadImageToStorage;
+// DELETE IMAGE
+exports.deleteFile = async function(filename) {
+    const file = await storage.bucket(CLOUD_BUCKET).file(filename);
+    if(file){
+        file.delete();
+    }
+}

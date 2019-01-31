@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 // FIREBASE & GOOGLE CLOUD
-const uploadImageToStorage = require('../functions/uploadImageToStorage');
+const GCS = require('../functions/GCS');
+const uploadFile = GCS.uploadFile;
+const deleteFile = GCS.deleteFile;
 // MULTER
 const multer = require('multer');
 const storage = multer.diskStorage({
@@ -85,17 +87,17 @@ router.post('/', upload.single('img'), async (req, res, next) => {
         newItem['description'] = req.body.description;
     }
     if (req.file && req.file.fieldname === 'img') {
-        await uploadImageToStorage(req.file)
-        .then(imgUrl => {
-            newItem['img'] = imgUrl;
-        })
-        .catch(error => {
-            res.status(500).send({
-                message: error
+        await uploadFile(req.file)
+            .then(imgUrl => {
+                newItem['img'] = imgUrl;
+            })
+            .catch(error => {
+                res.status(500).send({
+                    message: error
+                });
             });
-        });
     }
-    
+
     newItem = new Book({ _id: new mongoose.Types.ObjectId(), ...newItem });
     newItem.save()
         .then(doc => {
@@ -119,20 +121,25 @@ router.put('/:id', upload.single('img'), async (req, res, next) => {
         }
     }
     if (req.file && req.file.fieldname === 'img') {
-        await uploadImageToStorage(req.file)
-        .then(imgUrl => {
-            newItem['img'] = imgUrl;
-        })
-        .catch(error => {
-            res.status(500).send({
-                message: error
+        await uploadFile(req.file)
+            .then(imgUrl => {
+                newItem['img'] = imgUrl;
+            })
+            .catch(error => {
+                res.status(500).send({
+                    message: error
+                });
             });
-        });
     }
     newItem['updatedAt'] = Date.now();
 
     Book.findByIdAndUpdate({ _id: id }, { $set: newItem })
-        .then(doc => {
+        .then(async doc => {
+            // DELETE OLD FILE
+            if(doc.img){
+                const filename = doc.img.split('?')[0].split('/').pop();
+                await deleteFile(filename);
+            }
             res.status(200).json(newItem);
         })
         .catch(err => {
@@ -148,7 +155,12 @@ router.delete('/:id', (req, res, next) => {
 
     Book.findByIdAndDelete({ _id: id })
         .exec()
-        .then(doc => {
+        .then(async doc => {
+            // DELETE OLD FILE
+            if(doc.img){
+                const filename = doc.img.split('?')[0].split('/').pop();
+                await deleteFile(filename);
+            }
             res.status(200).json(doc);
         })
         .catch(err => {
