@@ -70,9 +70,11 @@ router.post('/', upload.single('img'), async (req, res, next) => {
         newItem['name'] = req.body.name;
     }
     if (req.file && req.file.fieldname === 'img') {
-        await uploadImageToStorage(req.file).then(imgUrl => {
+        await uploadImageToStorage(req.file)
+        .then(imgUrl => {
             newItem['img'] = imgUrl;
-        }).catch(error => {
+        })
+        .catch(error => {
             res.status(500).send({
                 message: error
             });
@@ -93,7 +95,7 @@ router.post('/', upload.single('img'), async (req, res, next) => {
     if (req.body.description) {
         newItem['description'] = req.body.description;
     }
-
+    
     newItem = new Book({ _id: new mongoose.Types.ObjectId(), ...newItem });
     newItem.save()
         .then(doc => {
@@ -107,16 +109,25 @@ router.post('/', upload.single('img'), async (req, res, next) => {
 });
 
 // UPDATE
-router.put('/:id', upload.single('img'), (req, res, next) => {
+router.put('/:id', upload.single('img'), async (req, res, next) => {
     const id = req.params.id;
     let newItem = {};
+
     for (let key in req.body) {
         if (req.body[key] && key !== 'img') {
             newItem[key] = req.body[key];
         }
     }
     if (req.file && req.file.fieldname === 'img') {
-        newItem['img'] = req.file.filename;
+        await uploadImageToStorage(req.file)
+        .then(imgUrl => {
+            newItem['img'] = imgUrl;
+        })
+        .catch(error => {
+            res.status(500).send({
+                message: error
+            });
+        });
     }
 
     Book.findByIdAndUpdate({ _id: id }, { $set: newItem })
