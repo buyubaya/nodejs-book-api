@@ -69,17 +69,6 @@ router.post('/', upload.single('img'), async (req, res, next) => {
     if (req.body.name) {
         newItem['name'] = req.body.name;
     }
-    if (req.file && req.file.fieldname === 'img') {
-        await uploadImageToStorage(req.file)
-        .then(imgUrl => {
-            newItem['img'] = imgUrl;
-        })
-        .catch(error => {
-            res.status(500).send({
-                message: error
-            });
-        });
-    }
     if (req.body.price) {
         newItem['price'] = req.body.price;
     }
@@ -94,6 +83,17 @@ router.post('/', upload.single('img'), async (req, res, next) => {
     }
     if (req.body.description) {
         newItem['description'] = req.body.description;
+    }
+    if (req.file && req.file.fieldname === 'img') {
+        await uploadImageToStorage(req.file)
+        .then(imgUrl => {
+            newItem['img'] = imgUrl;
+        })
+        .catch(error => {
+            res.status(500).send({
+                message: error
+            });
+        });
     }
     
     newItem = new Book({ _id: new mongoose.Types.ObjectId(), ...newItem });
@@ -129,10 +129,11 @@ router.put('/:id', upload.single('img'), async (req, res, next) => {
             });
         });
     }
+    newItem['updatedAt'] = Date.now();
 
     Book.findByIdAndUpdate({ _id: id }, { $set: newItem })
         .then(doc => {
-            res.status(200).json(doc);
+            res.status(200).json(newItem);
         })
         .catch(err => {
             res.status(500).json({
