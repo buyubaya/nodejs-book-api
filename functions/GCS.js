@@ -15,30 +15,54 @@ exports.uploadFile = function(file){
             reject('No image file');
         }
 
-        // ADD NEW IMAGE
+        // UPLOAD FILE BY BUFFER
+        const filename = Date.now() + '_' + file.originalname;
+        const blob = bucket.file(filename);
         const downloadToken = uuid();
-        bucket.upload(
-            file.path,
-            {
-                destination: file.filename,
+        const blobStream = blob.createWriteStream({
+            metadata: {
+                contentType: file.mimetype,
                 metadata: {
-                    contentType: file.mimetype,
-                    metadata: {
-                        firebaseStorageDownloadTokens: downloadToken
-                    }
-                }
-            },
-            function (err, data) {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    let img = data[0];
-                    img = "https://firebasestorage.googleapis.com/v0/b/" + bucket.name + "/o/" + encodeURIComponent(file.filename) + "?alt=media&token=" + downloadToken;
-                    resolve(img);
+                    firebaseStorageDownloadTokens: downloadToken
                 }
             }
-        );
+        });
+
+        blobStream.on('error', (err) => {
+            reject(err);
+        });
+
+        blobStream.on('finish', () => {
+            const publicUrl = "https://firebasestorage.googleapis.com/v0/b/" + bucket.name + "/o/" + encodeURIComponent(filename) + "?alt=media&token=" + downloadToken;
+            resolve(publicUrl);
+        });
+
+        blobStream.end(file.buffer);
+
+        // UPLOAD FILE BY PATH
+        // const downloadToken = uuid();
+        // bucket.upload(
+        //     file.path,
+        //     {
+        //         destination: file.filename,
+        //         metadata: {
+        //             contentType: file.mimetype,
+        //             metadata: {
+        //                 firebaseStorageDownloadTokens: downloadToken
+        //             }
+        //         }
+        //     },
+        //     function (err, data) {
+        //         if (err) {
+        //             reject(err);
+        //         }
+        //         else {
+        //             let img = data[0];
+        //             img = "https://firebasestorage.googleapis.com/v0/b/" + bucket.name + "/o/" + encodeURIComponent(file.filename) + "?alt=media&token=" + downloadToken;
+        //             resolve(img);
+        //         }
+        //     }
+        // );
     });
 };
 
