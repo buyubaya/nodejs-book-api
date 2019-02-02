@@ -49,14 +49,39 @@ router.get('/:id', (req, res, next) => {
 });
 
 // GET ALL
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
+    // FILTER QUERIES
+    
+    // PAGINATION
+    let page = req.query.page ? req.query.page * 1 : 1;
+    if(page < 1){
+        page = 1;
+    }
+    const limit = req.query.limit ? req.query.limit * 1 : 10;
+    console.log(22222, req.query);
+    
     Book.find()
+        .limit(limit)
+        .skip(limit * (page - 1))
         .populate('category', '_id name')
         .populate('author', '_id name')
         .populate('brand', '_id name')
         .exec()
         .then(doc => {
-            res.status(200).json(doc);
+            Book.countDocuments()
+            .exec((err, count) => {
+                if(err){
+                    res.status(500).json({
+                        message: err
+                    });
+                }
+                res.status(200).json({
+                    list: doc,
+                    page,
+                    limit,
+                    count
+                });
+            });
         })
         .catch(err => {
             res.status(500).json({

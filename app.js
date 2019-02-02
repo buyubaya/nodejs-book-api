@@ -31,10 +31,10 @@ const bookRoute = require('./routes/book');
 const categoryRoute = require('./routes/category');
 const authorRoute = require('./routes/author');
 const brandRoute = require('./routes/brand');
-app.use('/book', bookRoute);
-app.use('/category', categoryRoute);
-app.use('/author', authorRoute);
-app.use('/brand', brandRoute);
+app.use('/api/product', bookRoute);
+app.use('/api/category', categoryRoute);
+app.use('/api/author', authorRoute);
+app.use('/api/brand', brandRoute);
 app.use('/', (req, res, next) => {
     res.send('HELLO BOOKS');
 });
