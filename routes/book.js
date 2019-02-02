@@ -109,30 +109,48 @@ router.get('/', async (req, res, next) => {
         const searchRegex = new RegExp(search, 'i');
         searchOption['name'] = searchRegex;
     }
-    
+
+    // const bookQuery = Book.find(searchOption)
+    //     .sort(sortOption)
+    //     .populate('category', '_id name')
+    //     .populate('author', '_id name')
+    //     .populate('brand', '_id name');
+
     Book.find(searchOption)
         .sort(sortOption)
-        .limit(limit)
-        .skip(limit * (page - 1))
         .populate('category', '_id name')
         .populate('author', '_id name')
         .populate('brand', '_id name')
+        // .limit(limit)
+        // .skip(limit * (page - 1))
         .exec()
         .then(doc => {
-            Book.countDocuments()
-            .exec((err, count) => {
-                if(err){
-                    res.status(500).json({
-                        message: err
-                    });
-                }
-                res.status(200).json({
-                    list: doc,
-                    page,
-                    limit,
-                    count
-                });
+            const totalPage = Math.ceil( doc.length / limit );
+            if(page > totalPage){
+                page = totalPage;
+            }
+            const list = doc.slice(limit * (page - 1), limit * page);
+            res.status(200).json({
+                list,
+                page,
+                limit,
+                count: doc.length
             });
+            // bookQuery
+            //     .countDocuments()
+            //     .exec((err, count) => {
+            //         if(err){
+            //             res.status(500).json({
+            //                 message: err
+            //             });   
+            //         }
+            //         res.status(200).json({
+            //             list: doc,
+            //             page,
+            //             limit,
+            //             count
+            //         });
+            //     });
         })
         .catch(err => {
             res.status(500).json({
