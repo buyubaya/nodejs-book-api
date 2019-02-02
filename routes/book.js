@@ -49,18 +49,69 @@ router.get('/:id', (req, res, next) => {
 });
 
 // GET ALL
-router.get('/', async (req, res, next) => {
-    // FILTER QUERIES
-    
+router.get('/', async (req, res, next) => {    
     // PAGINATION
     let page = req.query.page ? req.query.page * 1 : 1;
     if(page < 1){
         page = 1;
     }
     const limit = req.query.limit ? req.query.limit * 1 : 10;
-    console.log(22222, req.query);
+    // SORT
+    let sortOption = {};
+    if(req.query.sort){
+        const sort = req.query.sort;
+        if(sort === 'latest'){
+            sortOption['createdAt'] = -1
+        }
+        if(sort === 'oldest'){
+            sortOption['createdAt'] = 1
+        }
+        if(sort === 'a-z'){
+            sortOption['name'] = 1
+        }
+        if(sort === 'z-a'){
+            sortOption['name'] = -1
+        }
+        if(sort === 'price-asc'){
+            sortOption['price'] = 1
+        }
+        if(sort === 'price-desc'){
+            sortOption['price'] = -1
+        }
+    }
+    // SEARCH CATEGORY
+    let searchOption = {};
+    if(req.query.category){
+        searchOption['category'] = req.query.category;
+    }
+    // SEARCH AUTHOR
+    if(req.query.author){
+        searchOption['author'] = req.query.author;
+    }
+    // SEARCH BRAND
+    if(req.query.brand){
+        searchOption['brand'] = req.query.brand;
+    }
+    // SEARCH NAME
+    if(req.query.search){
+        let search = req.query.search.toLowerCase();
+        search = search.replace('a', '(a|á|à|ả|ã|ạ|ă|â)');
+        search = search.replace('ă', '(ă|ắ|ằ|ẳ|ẵ|ặ)');
+        search = search.replace('â', '(â|ấ|ầ|ẩ|ẫ|ậ)');
+        search = search.replace('e', '(e|é|è|ẻ|ẽ|ẹ|ê)');
+        search = search.replace('ê', '(ê|ế|ề|ể|ễ|ệ)');
+        search = search.replace('u', '(u|ú|ù|ủ|ũ|ụ|ư)');
+        search = search.replace('ư', '(ư|ứ|ừ|ử|ữ|ự)');
+        search = search.replace('i', '(i|í|ì|ỉ|ĩ|ị)');
+        search = search.replace('o', '(o|ó|ò|ỏ|õ|ọ|ơ|ô)');
+        search = search.replace('ơ', '(ơ|ớ|ờ|ở|ỡ|ợ)');
+        search = search.replace('ô', '(ô|ố|ồ|ổ|ỗ|ộ)');
+        const searchRegex = new RegExp(search, 'i');
+        searchOption['name'] = searchRegex;
+    }
     
-    Book.find()
+    Book.find(searchOption)
+        .sort(sortOption)
         .limit(limit)
         .skip(limit * (page - 1))
         .populate('category', '_id name')

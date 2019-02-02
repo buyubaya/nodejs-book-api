@@ -12,7 +12,7 @@ const bookSchema = mongoose.Schema({
     description: { type : String, default: null },
     createdAt: { type : Date, default: Date.now },
     updatedAt: { type : Date, default: Date.now }
-});
+}, { collation: { locale: 'vi' } });
 
 
 module.exports = mongoose.model('Book', bookSchema);
