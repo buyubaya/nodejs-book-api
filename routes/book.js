@@ -61,22 +61,22 @@ router.get('/', async (req, res, next) => {
     if(req.query.sort){
         const sort = req.query.sort;
         if(sort === 'latest'){
-            sortOption['createdAt'] = -1
+            sortOption['createdAt'] = -1;
         }
         if(sort === 'oldest'){
-            sortOption['createdAt'] = 1
+            sortOption['createdAt'] = 1;
         }
         if(sort === 'a-z'){
-            sortOption['name'] = 1
+            sortOption['name'] = 1;
         }
         if(sort === 'z-a'){
-            sortOption['name'] = -1
+            sortOption['name'] = -1;
         }
         if(sort === 'price-asc'){
-            sortOption['price'] = 1
+            sortOption['price'] = 1;
         }
         if(sort === 'price-desc'){
-            sortOption['price'] = -1
+            sortOption['price'] = -1;
         }
     }
     // SEARCH CATEGORY
@@ -115,7 +115,6 @@ router.get('/', async (req, res, next) => {
     //     .populate('category', '_id name')
     //     .populate('author', '_id name')
     //     .populate('brand', '_id name');
-
     Book.find(searchOption)
         .sort(sortOption)
         .populate('category', '_id name')
@@ -166,7 +165,7 @@ router.post('/', upload.single('img'), async (req, res, next) => {
         newItem['name'] = req.body.name;
     }
     if (req.body.price) {
-        newItem['price'] = req.body.price;
+        newItem['price'] = req.body.price * 1;
     }
     if (req.body.category) {
         newItem['category'] = req.body.category;
@@ -210,11 +209,14 @@ router.put('/:id', upload.single('img'), async (req, res, next) => {
     let newItem = {};
 
     for (let key in req.body) {
+        if (req.body[key] && key !== 'price') {
+            newItem[key] = req.body[key] * 1;
+        }
         if (req.body[key] && key !== 'img') {
             newItem[key] = req.body[key];
         }
     }
-    if (req.file && req.file.fieldname === 'img') {
+    if (req.file && req.file.fieldname === 'img' && req.file.size > 0) {
         await uploadFile(req.file)
             .then(imgUrl => {
                 newItem['img'] = imgUrl;
@@ -230,11 +232,11 @@ router.put('/:id', upload.single('img'), async (req, res, next) => {
     Book.findByIdAndUpdate({ _id: id }, { $set: newItem })
         .then(async doc => {
             // DELETE OLD FILE
-            if(doc.img){
+            if(doc.img && newItem.img){
                 const filename = doc.img.split('?')[0].split('/').pop();
                 await deleteFile(filename);
             }
-            res.status(200).json(newItem);
+            res.status(200).json({ ...doc._doc, ...newItem });
         })
         .catch(err => {
             res.status(500).json({
