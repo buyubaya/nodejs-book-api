@@ -6,7 +6,7 @@ const categorySchema = mongoose.Schema({
     name: { type: String, required: true },
     img: { type : String, default: null },
     parent_id: { type : mongoose.Schema.Types.ObjectId, default: null },
-    description: { type : Date, default: null },
+    description: { type : String, default: null },
     createdAt: { type : Date, default: Date.now },
     updatedAt: { type : Date, default: Date.now }
 });
