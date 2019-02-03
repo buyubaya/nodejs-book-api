@@ -74,7 +74,7 @@ router.post('/signup', upload.single('img'), (req, res, next) => {
 // DELETE
 router.delete('/:id', (req, res, next) => {
     const id = req.params.id;
-
+    
     User.findByIdAndDelete({ _id: id })
         .exec()
         .then(doc => {
@@ -91,20 +91,20 @@ router.delete('/:id', (req, res, next) => {
 // LOG IN
 router.post('/login', (req, res, next) => {
     const { username, password } = req.body;
-    
+    console.log('LOGIN', req.body, username, password);
     User.find({ username })
     .exec()
     .then(doc => {
         if(doc.length < 1){
             res.status(400).json({
-                message: 'Invalid username and password'
+                message: 'Invalid username and password 1'
             })  
         }
 
         bcrypt.compare(password, doc[0].password, (err, result) => {
             if(err){
                 res.status(400).json({
-                    message: 'Invalid username and password'
+                    message: 'Invalid username and password 2'
                 })    
             }
 
