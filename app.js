@@ -36,7 +36,7 @@ app.use('/api/product', bookRoute);
 app.use('/api/category', categoryRoute);
 app.use('/api/author', authorRoute);
 app.use('/api/brand', brandRoute);
-app.use('/user', userRoute);
+app.use('/api/user', userRoute);
 app.use('/', (req, res, next) => {
     res.send('HELLO BOOKS');
 });
