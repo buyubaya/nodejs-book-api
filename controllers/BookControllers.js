@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 const Book = require('../models/Book');
+const Category = require('../models/Category');
 // FIREBASE & GOOGLE CLOUD
 const GCS = require('../functions/GCS');
 const uploadFile = GCS.uploadFile;
 const deleteFile = GCS.deleteFile;
+// HELPER
+const helper = require('../functions/helper');
+const findRelativeChildren = helper.findRelativeChildren;
 
 
 exports.getById = (req, res, next) => {
@@ -54,7 +58,9 @@ exports.getAll = async (req, res, next) => {
     // SEARCH CATEGORY
     let searchOption = {};
     if(req.query.category){
-        searchOption['category'] = req.query.category;
+        const cateList = await Category.find().exec();
+        const cateOptions = findRelativeChildren(cateList, req.query.category);
+        searchOption['category'] = { $in: cateOptions };
     }
     // SEARCH AUTHOR
     if(req.query.author){
